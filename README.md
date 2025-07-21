@@ -1,67 +1,67 @@
 # VLM-Enhanced Robotic Assistant
 
-## 🤖 專案簡介
+## Abstract
 
-這是一個先進的模組化系統，設計用於透過自然語言指令控制機械手臂。系統整合了視覺語言模型 (VLM) 來實現深度、情境感知的指令理解，利用即時視覺數據來解決歧義問題。系統採用「可插拔」架構，允許輕鬆替換核心組件，如 ASR（自動語音識別）、VLM 和 TTS（文字轉語音）服務。
+This repository presents an advanced modular robotic control system that leverages Vision-Language Models (VLMs) for natural language-based robotic manipulation. The system addresses the fundamental challenge of ambiguity resolution in human-robot interaction by integrating real-time visual perception with multimodal AI models. The architecture implements a pluggable design pattern that enables seamless integration and substitution of core components including Automatic Speech Recognition (ASR), Vision-Language Models, and Text-to-Speech (TTS) services.
 
-## ✨ 主要特色
+## Key Features
 
--   **🧠 VLM 驅動的歧義消解**：利用最新的 Gemini 2.5 Flash 模型透過即時影像來解釋模糊指令（例如「拿起那個」）
--   **🔧 模組化可插拔架構**：核心組件圍繞介面建構（`ASRInterface`、`VLMInterface`），讓開發者能輕鬆切換服務（例如 `Whisper` vs. mock ASR、`Gemini API` vs. 本地模型）
--   **🎤 即時麥克風錄音**：支援直接從麥克風錄音，無需預錄音檔
--   **� 持續運行模式**：系統可持續運行，處理多次語音互動，無需重新啟動
--   **🛑 智慧語音關閉**：說「關閉系統」可安全退出，包含語音確認機制
--   **�🗣️ 繁體中文語音互動**：完整的中文語音識別和合成功能
--   **🔐 安全的 API 金鑰管理**：使用 `.env` 檔案安全管理敏感的 API 金鑰
--   **🛡️ 強健的工作流程**：主應用程式迴圈具備全面的錯誤處理和自動恢復
--   **💬 互動式反饋**：使用 TTS 提供語音反饋、詢問澄清問題和確認動作
+-   **VLM-Driven Ambiguity Resolution**: Employs state-of-the-art Gemini 2.5 Flash model to interpret ambiguous commands (e.g., "pick that up") through real-time visual context analysis
+-   **Modular Pluggable Architecture**: Core components built around well-defined interfaces (`ASRInterface`, `VLMInterface`) enabling developers to seamlessly switch between services (e.g., Whisper vs. mock ASR, Gemini API vs. local models)
+-   **Real-time Audio Capture**: Supports direct microphone input without requiring pre-recorded audio files
+-   **Persistent Session Management**: System maintains continuous operation, processing multiple voice interactions without restart requirements
+-   **Intelligent Voice-Controlled Shutdown**: Implements safe system termination through voice commands with confirmation mechanisms
+-   **Multilingual Speech Processing**: Comprehensive Traditional Chinese speech recognition and synthesis capabilities
+-   **Secure API Key Management**: Implements secure credential management through environment variable configuration
+-   **Robust Error Handling**: Main application loop features comprehensive error handling and automatic recovery mechanisms
+-   **Interactive Feedback System**: Provides real-time voice feedback, clarification requests, and action confirmations through TTSbotic Assistant
 
-## 🏗️ 系統架構
+## System Architecture
 
-系統遵循以 VLM 為中心的順序處理管線：
+The system implements a VLM-centric sequential processing pipeline following established patterns in multimodal AI systems:
 
-1.  **輸入**：系統接受兩個主要輸入：
-    -   來自用戶的語音指令（從麥克風錄製或 `.wav` 檔案）
-    -   工作空間的視覺快照（圖像檔案）
+1.  **Input Layer**: The system accepts two primary input modalities:
+    -   Acoustic input from user voice commands (captured via microphone or from `.wav` files)
+    -   Visual input representing workspace snapshots (image files)
 
-2.  **ASR 模組**：將音頻指令轉錄為文字
-    -   **預設**：`WhisperASR`（使用 OpenAI 的 Whisper）
-    -   **替代方案**：`FunASR`（用於測試的 mock 實作）
+2.  **Speech Recognition Module**: Transcribes audio commands to textual representation
+    -   **Primary Implementation**: `WhisperASR` (utilizing OpenAI's Whisper model)
+    -   **Alternative Implementation**: `FunASR` (mock implementation for testing)
 
-3.  **VLM 核心模組**：將轉錄文字和圖像發送給 VLM
-    -   **預設**：`GeminiAPI_VLM`（使用 Google Gemini 2.5 Flash）
-    -   **替代方案**：`LocalQwenVL`（自託管模型的 mock）
+3.  **Vision-Language Model Core**: Processes transcribed text and visual input through multimodal transformer architecture
+    -   **Primary Implementation**: `GeminiAPI_VLM` (Google Gemini 2.5 Flash)
+    -   **Alternative Implementation**: `LocalQwenVL` (mock for self-hosted models)
 
-4.  **任務與反饋模組**：應用程式解析 VLM 的 JSON 回應
-    -   如果動作是 `clarify`，`TTS` 模組會說出問題
-    -   如果動作是 `shutdown`，系統會要求語音確認後安全關閉
-    -   如果動作是指令（例如 `pick_up`），系統透過 TTS 確認動作
+4.  **Task Execution and Feedback Module**: Parses VLM JSON responses and executes appropriate actions
+    -   For `clarify` actions: TTS module vocalizes clarification questions
+    -   For `shutdown` actions: System requests voice confirmation before safe termination
+    -   For command actions (e.g., `pick_up`): System confirms action execution through TTS
 
-5.  **持續運行循環**：系統自動準備下一次互動，直到用戶要求關閉
+5.  **Continuous Operation Loop**: System automatically prepares for subsequent interactions until user-initiated shutdown
 
-## 🚀 快速開始
+## Installation and Setup
 
-### 📋 先決條件
+### Prerequisites
 
--   **Python 3.10+**：建議使用 Conda 環境管理
--   **FFmpeg**：Whisper ASR 模型需要 FFmpeg（詳見安裝說明）
--   **Gemini API 金鑰**：需要來自 [Google AI Studio](https://aistudio.google.com/) 的有效 API 金鑰
+-   **Python Environment**: Python 3.10+ with Conda environment management (recommended)
+-   **Audio Processing**: FFmpeg installation required for Whisper ASR model functionality
+-   **API Access**: Valid Gemini API key from [Google AI Studio](https://aistudio.google.com/)
 
-### 🔧 安裝與設定
+### Installation Procedure
 
-1.  **複製專案**：
+1.  **Repository Cloning**:
     ```bash
     git clone <your-repository-url>
     cd VLM-Enhanced-Robotic-Assistant
     ```
 
-2.  **建立 Python 環境**：
+2.  **Python Environment Configuration**:
     ```bash
-    # 使用 Conda（推薦）
+    # Using Conda (recommended)
     conda create --name vlm_robot_env python=3.10 -y
     conda activate vlm_robot_env
     
-    # 或使用 venv
+    # Alternative: using venv
     python -m venv vlm_robot_env
     # Windows
     vlm_robot_env\Scripts\activate
@@ -69,253 +69,208 @@
     source vlm_robot_env/bin/activate
     ```
 
-3.  **安裝依賴套件**：
+3.  **Dependency Installation**:
     ```bash
     pip install -r requirements.txt
     ```
 
-4.  **安裝 FFmpeg**：
+4.  **FFmpeg Installation**:
     
-    **Windows（使用 winget，推薦）**：
+    **Windows (using winget - recommended)**:
     ```powershell
     winget install Gyan.FFmpeg
     ```
     
-    **Windows（使用 Chocolatey）**：
+    **Windows (using Chocolatey)**:
     ```powershell
     choco install ffmpeg
     ```
     
-    **macOS**：
+    **macOS**:
     ```bash
     brew install ffmpeg
     ```
     
-    **Linux**：
+    **Linux**:
     ```bash
     sudo apt update && sudo apt install ffmpeg
     ```
 
-5.  **設定 API 金鑰**：
-    -   將 `.env.example` 重新命名為 `.env`
-    -   編輯 `.env` 檔案並添加您的 Gemini API 金鑰：
+5.  **API Key Configuration**:
+    -   Rename `.env.example` to `.env`
+    -   Edit `.env` file and add your Gemini API key:
         ```
         GEMINI_API_KEY="YOUR_ACTUAL_API_KEY_HERE"
         ```
 
-### 🎮 執行應用程式
+### System Execution
 
 ```bash
 python main.py
 ```
 
-## 📖 使用方式
+## Usage Instructions
 
-### 🔄 持續運行模式（預設）
-1. 執行程式後，系統會初始化所有服務
-2. 系統進入持續運行模式，顯示互動計數
-3. 每次互動：
-   - 看到倒數計時後開始說話（5 秒錄音時間）
-   - 系統會分析您的語音和圖像
-   - 透過語音獲得回應
-   - 自動準備下一次互動
+### Continuous Operation Mode (Default)
+1. Upon execution, the system initializes all service modules
+2. System enters continuous operation mode with interaction counter display
+3. For each interaction cycle:
+   - Audio capture countdown timer provides user guidance (5-second recording window)
+   - System performs multimodal analysis of speech and visual input
+   - Voice response delivered through TTS synthesis
+   - Automatic preparation for subsequent interaction
 
-### 🛑 安全關閉系統
-1. **語音關閉**：說「關閉系統」
-2. **系統確認**：會詢問「您確定要關閉系統嗎？」
-3. **語音確認**：
-   - 說「是」、「確定」、「好」→ 系統關閉
-   - 說「否」、「不」、「取消」→ 繼續運行
-4. **快速退出**：按 `Ctrl+C` 立即安全關閉
+### Safe System Shutdown Protocol
+1. **Voice Shutdown Command**: Issue "關閉系統" (shutdown system) command
+2. **System Confirmation**: System queries "您確定要關閉系統嗎？" (Are you sure you want to shutdown?)
+3. **Voice Confirmation**:
+   - Affirmative responses ("是", "確定", "好") → System termination
+   - Negative responses ("否", "不", "取消") → Continue operation
+4. **Emergency Exit**: `Ctrl+C` for immediate safe shutdown
 
-### 🎤 麥克風模式詳細說明
-- **錄音提示**：清楚的倒數計時和視覺提示
-- **錄音時長**：預設 5 秒（可在程式中調整）
-- **語言支援**：優化的繁體中文語音識別
-- **錯誤處理**：錄音失敗自動重試或提示
+### Microphone Mode Configuration
+- **Recording Prompts**: Clear countdown timer and visual feedback
+- **Recording Duration**: Default 5-second window (configurable in source)
+- **Language Optimization**: Enhanced Traditional Chinese speech recognition
+- **Error Recovery**: Automatic retry mechanism for failed recordings
 
-### 📁 檔案模式
-修改 `main.py` 中的設定：
+### File-based Input Mode
+Modify configuration in `main.py`:
 ```python
-RECORDING_MODE: str = "file"  # 改為 "file"
+RECORDING_MODE: str = "file"  # Change to "file"
 ```
 
-### 🔄 切換服務
-在 `AppConfig` 類別中修改服務選擇：
+### Service Configuration
+Modify service selection in `AppConfig` class:
 ```python
-# ASR 服務選擇
-ASR_SERVICE: str = "whisper"  # 或 "funasr"（mock）
+# ASR Service Selection
+ASR_SERVICE: str = "whisper"  # or "funasr" (mock)
 
-# VLM 服務選擇  
-VLM_SERVICE: str = "gemini"   # 或 "qwen_vl"（mock）
+# VLM Service Selection  
+VLM_SERVICE: str = "gemini"   # or "qwen_vl" (mock)
 ```
 
-## 🧪 測試
+## Testing Framework
 
-執行測試套件來驗證所有模組：
+Execute comprehensive test suite for module validation:
 
 ```bash
 python run_tests.py
 ```
 
-## 🔧 擴展系統
+## System Extension
 
-### 新增 ASR 模型
+### Adding ASR Models
 
-1.  **建立類別**：在 `src/asr/` 目錄中建立新檔案
-2.  **實作介面**：繼承 `ASRInterface` 並實作 `transcribe` 方法
-3.  **更新工廠**：在 `src/asr/__init__.py` 中添加新選項
+1.  **Class Creation**: Create new file in `src/asr/` directory
+2.  **Interface Implementation**: Inherit from `ASRInterface` and implement `transcribe` method
+3.  **Factory Update**: Add new option in `src/asr/__init__.py`
 
-### 新增 VLM 服務
+### Adding VLM Services
 
-1.  **建立類別**：在 `src/vlm/` 目錄中建立新檔案
-2.  **實作介面**：繼承 `VLMInterface` 並實作 `get_decision` 方法
-3.  **更新工廠**：在 `src/vlm/__init__.py` 中添加新選項
+1.  **Class Creation**: Create new file in `src/vlm/` directory
+2.  **Interface Implementation**: Inherit from `VLMInterface` and implement `get_decision` method
+3.  **Factory Update**: Add new option in `src/vlm/__init__.py`
 
-## 📁 專案結構
+## Project Structure
 
 ```
 VLM-Enhanced-Robotic-Assistant/
-├── main.py                    # 主要應用程式進入點（持續運行模式）
-├── requirements.txt           # Python 依賴套件
-├── .env.example              # API 金鑰範例檔案
-├── .env                      # API 金鑰配置檔案
-├── README.md                 # 專案說明文件
-├── CODE_REVIEW.md            # 程式碼審查報告
-├── UPDATE_SUMMARY.md         # 功能更新總結
-├── run_tests.py              # 測試執行器
-├── src/                      # 源代碼目錄
-│   ├── audio_recorder.py     # 音頻錄製模組（麥克風功能）
-│   ├── asr/                  # 自動語音識別模組
+├── main.py                    # Main application entry point (continuous operation mode)
+├── requirements.txt           # Python dependency specifications
+├── .env.example              # API key template file
+├── .env                      # API key configuration file
+├── README.md                 # Project documentation
+├── CODE_REVIEW.md            # Code review report
+├── UPDATE_SUMMARY.md         # Feature update summary
+├── run_tests.py              # Test execution framework
+├── src/                      # Source code directory
+│   ├── audio_recorder.py     # Audio recording module (microphone functionality)
+│   ├── asr/                  # Automatic Speech Recognition modules
 │   │   ├── __init__.py
 │   │   ├── asr_interface.py
 │   │   ├── whisper_asr.py
 │   │   └── funasr_asr.py
-│   ├── vlm/                  # 視覺語言模型模組
+│   ├── vlm/                  # Vision-Language Model modules
 │   │   ├── __init__.py
 │   │   ├── vlm_interface.py
-│   │   ├── gemini_vlm.py     # Gemini 2.5 Flash 整合
+│   │   ├── gemini_vlm.py     # Gemini 2.5 Flash integration
 │   │   └── local_qwen_vlm.py
-│   └── tts/                  # 文字轉語音模組
+│   └── tts/                  # Text-to-Speech modules
 │       ├── __init__.py
-│       └── tts_module.py     # 繁體中文 TTS
-└── test_data/                # 測試數據
+│       └── tts_module.py     # Traditional Chinese TTS
+└── test_data/                # Test datasets
     ├── test_audio.wav
     └── test_image_*.jpeg
 ```
 
-## 🐛 故障排除
+## Troubleshooting
 
-### 常見問題
+### Common Issues and Solutions
 
-1.  **FFmpeg 錯誤**：
+1.  **FFmpeg Installation Error**:
     ```
-    [WinError 2] 系統找不到指定的檔案
+    [WinError 2] The system cannot find the file specified
     ```
-    **解決方案**：確保 FFmpeg 已安裝並在系統 PATH 中
+    **Resolution**: Ensure FFmpeg is properly installed and added to system PATH
 
-2.  **API 配額限制**：
+2.  **API Quota Limitation**:
     ```
     429 You exceeded your current quota
     ```
-    **解決方案**：檢查您的 Gemini API 配額或切換到較輕量的模型
+    **Resolution**: Verify Gemini API quota limits or switch to lightweight model variants
 
-3.  **麥克風權限錯誤**：
-    **解決方案**：確保應用程式有麥克風使用權限
+3.  **Microphone Permission Error**:
+    **Resolution**: Ensure application has microphone access permissions in system settings
 
-4.  **音頻設備問題**：
-    **解決方案**：檢查音頻設備是否正常工作，或切換到檔案模式
+4.  **Audio Device Configuration Issues**:
+    **Resolution**: Verify audio device functionality or switch to file-based input mode
 
-## 🤝 貢獻
+## Contributing
 
-歡迎提交 Pull Request 和 Issue！請確保：
-1. 程式碼遵循現有的風格和結構
-2. 添加適當的文檔和測試
-3. 使用描述性的提交訊息
+I welcome contributions through Pull Requests and Issues. Please ensure:
+1. Code adheres to existing style and architectural patterns
+2. Appropriate documentation and test coverage is provided
+3. Descriptive commit messages follow conventional commit standards
 
-## 📝 授權
+## License
 
-[在此添加您的授權資訊]
+MIT
 
-## 🙏 致謝
+## Research Roadmap and Future Development
 
--   OpenAI Whisper 團隊提供優秀的語音識別模型
--   Google 提供 Gemini 視覺語言模型 API
--   Microsoft 提供 Edge TTS 服務
+### Short-term Objectives (1-3 months)
 
-## 🔮 Future Work
+#### Real-time Interaction Enhancement
+- **Continuous Dialogue Mode**: Implement persistent conversational context without per-interaction re-initialization
+- **Contextual Memory Systems**: Develop episodic memory for instruction history and conversational context retention
+- **Wake Word Detection**: Implement voice activation through configurable wake words for hands-free operation
+- **Multi-turn Conversation Management**: Support complex multi-step instruction decomposition and sequential execution
 
-### 🚀 短期計劃（1-3 個月）
+#### Real-time Video Stream Processing
+- **Live Camera Integration**: Direct USB and network camera input for real-time visual perception
+- **Dynamic Scene Analysis**: Continuous workspace monitoring and change detection algorithms
+- **Object Tracking and Identification**: Real-time tracking of moving objects and workspace elements
+- **Multi-camera Fusion**: Support for simultaneous multi-viewpoint visual input processing
 
-#### 💬 即時互動功能
-- **即時對話模式**：支援連續對話，無需每次重新錄音
-- **上下文記憶**：系統記住之前的對話內容和指令歷史
-- **語音喚醒詞**：說「小助手」喚醒系統，無需手動啟動
-- **多輪對話**：支援複雜的多步驟指令分解和執行
+### Medium-term Research Goals (3-6 months)
 
-#### 📹 即時串流影像功能
-- **即時攝影機輸入**：直接從 USB 攝影機或網路攝影機獲取影像
-- **動態場景分析**：實時分析工作場景變化
-- **移動物體追蹤**：追蹤和識別移動中的工件
-- **多角度視覺**：支援多個攝影機同時輸入
+#### Robotic Arm Integration
+- **ROS (Robot Operating System) Integration**: Complete hardware-software interface for real robotic manipulation
+- **Motion Planning and Path Optimization**: Intelligent obstacle avoidance and optimal trajectory computation
+- **Force Feedback Control Systems**: Precise force control mechanisms with safety protocols
+- **Human-Robot Collaboration**: Safe human-robot interaction protocols and collaborative workspace management
 
-### 🎯 中期計劃（3-6 個月）
+#### AI Capability Enhancement
+- **Autonomous Learning Systems**: Implement reinforcement learning from human interaction feedback
+- **Multimodal Sensor Fusion**: Integration of tactile, auditory, and visual sensory modalities
+- **Intent Prediction Models**: Predictive models for anticipating user command sequences
+- **Contextual Understanding**: Advanced workspace environment and task context comprehension
 
-#### 🤖 機械手臂整合
-- **真實機械手臂控制**：整合 ROS（Robot Operating System）
-- **路徑規劃**：智慧避障和最佳路徑計算
-- **力回饋控制**：精確的力度控制和安全機制
-- **協作模式**：人機協作的安全互動
+### Long-term Vision (6-12 months)
 
-#### 🧠 AI 能力增強
-- **自主學習**：從用戶互動中學習優化回應
-- **多模態融合**：結合觸覺、聽覺、視覺的綜合感知
-- **意圖預測**：預測用戶下一步可能的指令
-- **情境理解**：理解工作環境和任務背景
-
-### 🌟 長期願景（6-12 個月）
-
-#### 🌐 企業級應用
-- **多用戶支援**：支援多個操作員同時使用
-- **權限管理**：不同用戶的操作權限控制
-- **雲端部署**：支援雲端和邊緣計算部署
-- **監控儀表板**：即時監控系統狀態和性能指標
-
-#### 🔧 高級功能
-- **自動化工作流**：學習並自動化重複性任務
-- **品質檢測**：整合機器視覺進行產品品質檢測
-- **預測性維護**：預測設備維護需求
-- **數據分析**：生產效率和操作模式分析
-
-#### 🌍 擴展性
-- **多語言支援**：支援英文、日文、韓文等多種語言
-- **行業適配**：適配不同行業的特殊需求
-- **標準化介面**：支援工業標準協議和介面
-- **第三方整合**：與 ERP、MES 等企業系統整合
-
-### 🔬 研究方向
-
-#### 📚 技術探索
-- **大語言模型微調**：針對工業場景的專用模型訓練
-- **邊緣 AI 優化**：在資源受限環境下的模型優化
-- **聯邦學習**：多工廠間的知識共享而不洩露數據
-- **神經符號推理**：結合符號推理和神經網路的混合 AI
-
-#### 🛡️ 安全與可靠性
-- **故障容錯**：系統故障時的安全降級機制
-- **資料安全**：端到端加密和隱私保護
-- **實時響應**：毫秒級的響應時間優化
-- **安全認證**：工業安全標準認證（如 ISO 26262）
-
-### 🤝 社群參與
-
-我們歡迎社群貢獻以下方向：
-- 📝 **文檔改進**：多語言文檔和教學內容
-- 🧪 **測試案例**：更多真實場景的測試案例
-- 🔌 **插件開發**：新的 ASR、VLM、TTS 服務整合
-- 🎨 **UI/UX 設計**：圖形化使用者介面設計
-- 🏭 **行業案例**：不同行業的實際應用案例
-
----
-
-**加入我們的開發之旅！** 如果您對以上任何功能感興趣，歡迎提交 Issue 討論或直接貢獻程式碼。讓我們一起打造下一代智慧製造的未來！🚀
+#### Enterprise-scale Applications
+- **Multi-user Support Systems**: Concurrent multi-operator system access and management
+- **Role-based Access Control**: Hierarchical permission systems for different operator levels
+- **Cloud and Edge Deployment**: Scalable deployment architectures for cloud and edge computing environments
+- **Real-time Monitoring Dashboard**: Comprehensive system status and performance metrics visualization
