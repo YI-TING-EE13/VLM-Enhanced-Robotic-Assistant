@@ -1,23 +1,23 @@
 # Core libraries for the VLM-Enhanced Robot Assistant
 
 # ASR (Automatic Speech Recognition) dependencies
-openai-whisper                  # OpenAI Whisper for speech-to-text conversion
+openai-whisper>=20231117      # OpenAI Whisper for speech-to-text conversion
 
 # VLM (Vision-Language Model) dependencies
-google-generativeai            # Google Gemini API for multimodal AI
-pillow                         # PIL for image processing
+google-generativeai>=0.8.0   # Google Gemini API for multimodal AI
+pillow>=9.0.0                 # PIL for image processing
 
 # TTS (Text-to-Speech) dependencies
-edge-tts                       # Microsoft Edge TTS for speech synthesis
-playsound==1.2.2              # Audio playback (version 1.2.2 for Windows stability)
+edge-tts>=6.1.0              # Microsoft Edge TTS for speech synthesis
+playsound==1.2.2             # Audio playback (version 1.2.2 for Windows stability)
 
 # Audio recording dependencies
-sounddevice                    # Real-time audio recording from microphone
-numpy                          # Numerical operations for audio processing
-wave                           # WAV file format support
+sounddevice>=0.4.0           # Real-time audio recording from microphone
+numpy>=1.21.0                # Numerical operations for audio processing
+# wave is built-in to Python, no need to install
 
 # General utilities
-python-dotenv                  # Environment variable management for API keys
+python-dotenv>=0.19.0        # Environment variable management for API keys
 
 # Optional: Conda environment setup
 # conda install python=3.10 -y
