@@ -35,23 +35,24 @@ class LocalQwenVL(VLMInterface):
         print("LocalQwenVL: Service initialized (mock).")
         print(f"LocalQwenVL: Real implementation would load model from: '{self.model_path}'")
 
-    def get_decision(self, text_prompt: str, image: Image.Image) -> str:
+    def get_decision(self, text: str, image: Image.Image) -> dict:
         """
         Simulates the decision-making process of a local VLM.
 
         This mock method prints the received inputs to simulate processing,
         waits for a short period to mimic inference time, and then returns a
-        hardcoded, structured JSON response.
+        hardcoded, structured JSON response as a dictionary.
 
         Args:
-            text_prompt (str): The user's textual command.
+            text (str): The user's textual command.
             image (Image.Image): A PIL Image object of the visual context.
 
         Returns:
-            str: A mock JSON string representing a clarification question.
+            dict: A mock dictionary representing a clarification question.
         """
+        import json
         print("LocalQwenVL: Simulating local VLM inference...")
-        print(f"LocalQwenVL: Received prompt: '{text_prompt}'")
+        print(f"LocalQwenVL: Received prompt: '{text}'")
         print(f"LocalQwenVL: Received image of size: {image.size}")
 
         # Simulate the inference delay of a large local model.
@@ -61,4 +62,4 @@ class LocalQwenVL(VLMInterface):
         mock_response = '{"action": "clarify", "question": "您是指哪一個物件？(This is a mock response from the local Qwen-VL model)"}'
         
         print("LocalQwenVL: Mock inference complete.")
-        return mock_response
+        return json.loads(mock_response)

@@ -15,7 +15,7 @@ class VLMInterface(ABC):
     """
 
     @abstractmethod
-    def get_decision(self, text_prompt: str, image: Image.Image) -> str:
+    def get_decision(self, text: str, image: Image.Image) -> dict:
         """
         Processes a text prompt and an image to generate a decision.
 
@@ -24,13 +24,13 @@ class VLMInterface(ABC):
         such as a command for a robot or a clarification question for a user.
 
         Args:
-            text_prompt (str): The textual instruction or query from the user.
+            text (str): The textual instruction or query from the user.
             image (Image.Image): A PIL Image object representing the current
                                  visual scene (e.g., a live camera frame).
 
         Returns:
-            str: A string containing the model's response, which is expected
-                 to be in a structured format (e.g., JSON) for reliable parsing.
+            dict: A dictionary containing the model's response, which is expected
+                  to be in a structured format for reliable parsing.
 
         Raises:
             Exception: For any underlying errors during the decision-making
