@@ -12,7 +12,7 @@ class RealsenseCamera(CameraInterface):
     color stream, and captures frames for the application.
     """
 
-    def __init__(self, width: int = 640, height: int = 480, fps: int = 30):
+    def __init__(self, width: int = 640, height: int = 480, fps: int = 30) -> None:
         """
         Initializes the RealSense camera and starts the pipeline.
 

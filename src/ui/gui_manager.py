@@ -3,6 +3,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import threading
 import time
+from typing import Optional
 
 class GUIManager:
     """
@@ -14,7 +15,7 @@ class GUIManager:
     update images without blocking.
     """
 
-    def __init__(self, width: int = 1280, height: int = 520):
+    def __init__(self, width: int = 1280, height: int = 520) -> None:
         """
         Initializes the GUIManager and starts the GUI thread.
 
@@ -22,13 +23,13 @@ class GUIManager:
             width (int): The total width of the GUI window.
             height (int): The total height of the GUI window.
         """
-        self.root = None
-        self.live_panel = None
-        self.captured_panel = None
-        self._live_image_tk = None
-        self._captured_image_tk = None
-        self._last_live_image = None
-        self._last_captured_image = None
+        self.root: Optional[tk.Tk] = None
+        self.live_panel: Optional[tk.Label] = None
+        self.captured_panel: Optional[tk.Label] = None
+        self._live_image_tk: Optional[ImageTk.PhotoImage] = None
+        self._captured_image_tk: Optional[ImageTk.PhotoImage] = None
+        self._last_live_image: Optional[Image.Image] = None
+        self._last_captured_image: Optional[Image.Image] = None
         self.lock = threading.Lock()
         self.is_running = False
 
@@ -40,7 +41,7 @@ class GUIManager:
         self.gui_thread = threading.Thread(target=self._run_gui, daemon=True)
         self.gui_thread.start()
 
-    def _run_gui(self):
+    def _run_gui(self) -> None:
         """
         Creates and runs the main tkinter event loop.
         This method should only be called by the GUI thread.
@@ -81,26 +82,26 @@ class GUIManager:
         panel.pack(padx=5, pady=5)
         return panel
 
-    def _update_loop(self):
+    def _update_loop(self) -> None:
         """
         Periodically updates the images in the GUI panels.
         This is the core refresh loop for the GUI.
         """
-        if not self.is_running:
+        if not self.is_running or not self.root:
             return
 
         with self.lock:
-            if self._last_live_image:
+            if self._last_live_image and self.live_panel:
                 self._update_panel_image(self.live_panel, self._last_live_image)
                 self._last_live_image = None  # Consume the frame
 
-            if self._last_captured_image:
+            if self._last_captured_image and self.captured_panel:
                 self._update_panel_image(self.captured_panel, self._last_captured_image)
                 self._last_captured_image = None  # Consume the frame
         
         self.root.after(30, self._update_loop)  # Aim for ~33 FPS refresh rate
 
-    def _update_panel_image(self, panel: tk.Label, pil_image: Image.Image):
+    def _update_panel_image(self, panel: tk.Label, pil_image: Image.Image) -> None:
         """
         Resizes and displays a PIL image on a given tkinter panel.
 
@@ -115,7 +116,7 @@ class GUIManager:
         # garbage collected by Python's GC.
         panel.image = img_tk
 
-    def update_image(self, pil_image: Image.Image, panel_type: str):
+    def update_image(self, pil_image: Image.Image, panel_type: str) -> None:
         """
         Thread-safe method to update an image for display.
 
@@ -134,7 +135,7 @@ class GUIManager:
             elif panel_type == "captured":
                 self._last_captured_image = pil_image.copy()
 
-    def close(self):
+    def close(self) -> None:
         """
         Signals the GUI thread to shut down and closes the tkinter window.
         """
@@ -144,3 +145,14 @@ class GUIManager:
             # The mainloop might be blocking. Destroy forces it to exit.
             if self.root:
                 self.root.destroy()
+
+    def wait_for_close(self) -> None:
+        """
+        Allows the main thread to block until the GUI is closed.
+        """
+        while self.is_running:
+            try:
+                time.sleep(0.1)
+            except KeyboardInterrupt:
+                self.close()
+                break

@@ -15,7 +15,7 @@ class GeminiAPI_VLM(VLMInterface):
     output is highly dependent on the prompt engineering used by the caller.
     """
 
-    def __init__(self, model_name: str = 'gemini-2.5-flash'):
+    def __init__(self, model_name: str = 'gemini-2.5-flash') -> None:
         """
         Initializes and configures the Gemini VLM service client.
 
@@ -52,42 +52,42 @@ class GeminiAPI_VLM(VLMInterface):
             print(f"GeminiVLM: Failed to initialize Google GenAI. Error: {e}")
             raise
 
-    def get_decision(self, text: str, image: Image.Image) -> dict:
+    def get_decision(self, text: str, image: Image.Image) -> str:
         """
-        Sends a multimodal prompt to the Gemini API and returns the response.
+        Sends a multimodal prompt to the Gemini API and returns the raw response.
 
         This method constructs a request containing both the user's text query
         and the visual context from an image. It then calls the Gemini API
-        and returns the generated text, which is expected to be a JSON-formatted
-        string based on the provided prompt.
+        and returns the generated text.
 
         Args:
             text (str): The textual part of the prompt (e.g., user command).
             image (Image.Image): A PIL Image object providing the visual context.
 
         Returns:
-            dict: The parsed JSON response from the Gemini API as a dictionary.
+            str: The raw text response from the Gemini API.
 
         Raises:
             Exception: Propagates any exceptions that occur during the API call,
                        which could be due to network issues, authentication errors,
                        or invalid input.
-            ValueError: If the response from the API is not valid JSON.
         """
-        import json
         print("GeminiVLM: Sending request to API...")
         try:
             # The generate_content method accepts a list of mixed-modality parts.
             response = self.model.generate_content([text, image])
             print("GeminiVLM: Received response from API.")
             
-            # Clean the response and parse it as JSON
-            cleaned_response = response.text.strip().replace('```json', '').replace('```', '').strip()
-            return json.loads(cleaned_response)
-        except json.JSONDecodeError as e:
-            print(f"GeminiVLM: Failed to parse JSON response: {e}")
-            print(f"GeminiVLM: Raw response was: {response.text}")
-            raise ValueError("Received invalid JSON response from API.")
+            # Clean the response text
+            cleaned_response = response.text.strip()
+            if cleaned_response.startswith('```') and cleaned_response.endswith('```'):
+                # Find the first newline and the last newline to extract content
+                first_newline = cleaned_response.find('\n')
+                last_newline = cleaned_response.rfind('\n')
+                if first_newline != -1 and last_newline != -1 and last_newline > first_newline:
+                    cleaned_response = cleaned_response[first_newline + 1:last_newline].strip()
+            
+            return cleaned_response
         except Exception as e:
             print(f"GeminiVLM: An error occurred during the API call: {e}")
             # Re-raising is important for the caller to handle API failures.

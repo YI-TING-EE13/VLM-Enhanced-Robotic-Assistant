@@ -4,6 +4,8 @@ from PIL import Image
 import time
 import os
 
+from typing import Any
+
 class LocalQwenVL(VLMInterface):
     """
     A mock implementation of the VLMInterface for a local Qwen-VL model.
@@ -20,7 +22,7 @@ class LocalQwenVL(VLMInterface):
        image preprocessing, tokenization, and model generation.
     """
 
-    def __init__(self, model_path: str, **kwargs):
+    def __init__(self, model_path: str, **kwargs: Any) -> None:
         """
         Initializes the mock LocalQwenVL service.
 
@@ -35,22 +37,21 @@ class LocalQwenVL(VLMInterface):
         print("LocalQwenVL: Service initialized (mock).")
         print(f"LocalQwenVL: Real implementation would load model from: '{self.model_path}'")
 
-    def get_decision(self, text: str, image: Image.Image) -> dict:
+    def get_decision(self, text: str, image: Image.Image) -> str:
         """
         Simulates the decision-making process of a local VLM.
 
         This mock method prints the received inputs to simulate processing,
         waits for a short period to mimic inference time, and then returns a
-        hardcoded, structured JSON response as a dictionary.
+        hardcoded, structured XML string as a dictionary.
 
         Args:
             text (str): The user's textual command.
             image (Image.Image): A PIL Image object of the visual context.
 
         Returns:
-            dict: A mock dictionary representing a clarification question.
+            str: A mock XML string representing a task plan.
         """
-        import json
         print("LocalQwenVL: Simulating local VLM inference...")
         print(f"LocalQwenVL: Received prompt: '{text}'")
         print(f"LocalQwenVL: Received image of size: {image.size}")
@@ -59,7 +60,15 @@ class LocalQwenVL(VLMInterface):
         time.sleep(2)
 
         # Return a mock structured response for development and testing.
-        mock_response = '{"action": "clarify", "question": "您是指哪一個物件？(This is a mock response from the local Qwen-VL model)"}'
+        mock_response = """
+<plan>
+  <step>
+    <action>ASK_CLARIFICATION</action>
+    <target>您是指哪一個物件？</target>
+    <reason>This is a mock response from the local Qwen-VL model.</reason>
+  </step>
+</plan>
+"""
         
         print("LocalQwenVL: Mock inference complete.")
-        return json.loads(mock_response)
+        return mock_response.strip()

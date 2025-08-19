@@ -18,11 +18,12 @@ To add a new ASR service:
    an instance of your new class.
 """
 
+from typing import Any
 from .asr_interface import ASRInterface
 from .whisper_asr import WhisperASR
 from .funasr_asr import FunASR
 
-def get_asr_model(service_name: str = "whisper", **kwargs) -> ASRInterface:
+def get_asr_model(service_name: str = "whisper", **kwargs: Any) -> ASRInterface:
     """
     Factory function to create and return an instance of an ASR service.
 

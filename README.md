@@ -2,10 +2,11 @@
 
 ## Abstract
 
-This repository presents an advanced modular robotic control system that leverages Vision-Language Models (VLMs) for natural language-based robotic manipulation. The system addresses the fundamental challenge of ambiguity resolution in human-robot interaction by integrating real-time visual perception with multimodal AI models. The architecture implements a pluggable design pattern that enables seamless integration and substitution of core components, now including live video streams and a real-time graphical user interface (GUI).
+This repository presents an advanced modular robotic control system that leverages Vision-Language Models (VLMs) for natural language-based robotic manipulation. The system addresses the fundamental challenge of ambiguity resolution in human-robot interaction by integrating real-time visual perception with multimodal AI models to generate detailed, executable task plans. The architecture implements a pluggable design pattern that enables seamless integration and substitution of core components, now including live video streams and a real-time graphical user interface (GUI).
 
 ## Key Features
 
+-   **VLM-Powered Task Decomposition**: Automatically breaks down high-level user commands into a sequence of executable, step-by-step actions using a custom markup language format for reliable parsing.
 -   **VLM-Driven Ambiguity Resolution**: Employs a state-of-the-art VLM to interpret ambiguous commands by grounding them in visual context.
 -   **Real-time Video Input**: Directly processes live video streams from an Intel RealSense camera, enabling true real-time interaction with the physical world.
 -   **Live Vision Console (GUI)**: A new graphical interface that displays the live camera feed alongside the specific frame being analyzed by the VLM, offering crucial real-time feedback for operators and developers.
@@ -14,6 +15,7 @@ This repository presents an advanced modular robotic control system that leverag
 -   **Intelligent Voice-Controlled Shutdown**: Implements safe system termination through voice commands with confirmation mechanisms.
 -   **Secure API Key Management**: Uses environment variables for secure credential management.
 -   **Robust Error Handling**: The main application loop features comprehensive error handling and automatic recovery mechanisms.
+-   **High-Quality, Maintainable Code**: The entire codebase is fully type-hinted and follows modern API documentation standards, making it easy to understand, maintain, and extend.
 
 ## System Architecture
 
@@ -27,8 +29,9 @@ The system implements a VLM-centric sequential processing pipeline:
     -   **Primary Implementation**: `WhisperASR` (OpenAI's Whisper).
 4.  **Vision-Language Model Core**: Processes the transcribed text and a captured image frame to make a decision.
     -   **Primary Implementation**: `GeminiAPI_VLM` (Google Gemini).
-5.  **Task Execution and Feedback Module**: Parses the VLM's JSON response and executes the appropriate action (e.g., vocalizing a clarification question, confirming an action, or initiating shutdown).
-6.  **Continuous Operation Loop**: The system automatically prepares for the next interaction until the user initiates a shutdown.
+5.  **Task Decomposition Module**: A new layer (`TaskDecomposer`) takes the user's goal and the visual context to generate a detailed, step-by-step plan in a custom markup language, guided by a sophisticated prompt.
+6.  **Task Execution and Feedback Module**: Parses the structured plan from the Task Decomposer and executes the appropriate action (e.g., vocalizing a clarification question, confirming an action, or initiating shutdown).
+7.  **Continuous Operation Loop**: The system automatically prepares for the next interaction until the user initiates a shutdown.
 
 ## Installation and Setup
 
@@ -73,8 +76,12 @@ The system implements a VLM-centric sequential processing pipeline:
 
 ### System Execution
 
-To run the application with the live camera feed and GUI:
+To run the application:
 ```bash
+# Activate your conda environment first
+conda activate vlm_robot_env
+
+# Run the main script
 python main.py
 ```
 
@@ -83,16 +90,16 @@ python main.py
 ### Vision Console (GUI)
 Upon launching the application, a new window titled "VLM Robotic Assistant - Vision Console" will appear.
 -   **Live Camera Feed (Left Panel)**: Shows the continuous, real-time video stream from the RealSense camera. This allows you to see what the robot is currently observing.
--   **Frame for VLM (Right Panel)**: When you issue a voice command, this panel updates to show the exact static image that was captured and sent to the VLM for analysis. This is critical for debugging, as it shows the visual basis for the AI's decision.
+-   **Frame for VLM (Right Panel)**: When you issue a command, this panel updates to show the exact static image that was captured and sent to the VLM for analysis. This is critical for debugging, as it shows the visual basis for the AI's decision.
 
-### Voice Interaction
-1.  With the system running, issue a voice command (e.g., "pick up the long one").
-2.  The system will capture your voice and the current video frame.
+### Command Interaction
+1.  With the system running, enter a command in the terminal when prompted (e.g., "pick up the apple").
+2.  The system will capture the current video frame.
 3.  The right panel of the GUI will update with the captured frame.
-4.  The system will provide a voice response based on the VLM's analysis.
+4.  The system will contact the VLM to break down the task. The terminal will then display a structured, step-by-step plan for how the robot would execute your command.
 
 ### Safe Shutdown
--   **Voice Command**: Say "關閉系統" (shutdown system).
+-   **Voice Command**: Say "關閉系統" (shutdown system). (Note: Voice input is temporarily replaced by text input in the current `main.py`).
 -   **GUI Window**: Simply closing the GUI window will also initiate a safe shutdown.
 -   **Emergency Exit**: Press `Ctrl+C` in the terminal.
 
@@ -103,12 +110,15 @@ VLM-Enhanced-Robotic-Assistant/
 ├── main.py                    # Main application entry point
 ├── requirements.txt           # Python dependency specifications
 ├── README.md                  # Project documentation
+├── Task_Decomposition_Plan.md # Planning document for the VLM task decomposer
 ├── .env.example               # API key template file
 ├── src/                       # Source code directory
 │   ├── audio_recorder.py      # Audio recording module
+│   ├── task_decomposer.py     # NEW: Module for VLM-based task planning
 │   ├── asr/                   # Automatic Speech Recognition modules
 │   │   ├── __init__.py
 │   │   ├── asr_interface.py
+│   │   ├── funasr_asr.py
 │   │   └── whisper_asr.py
 │   ├── camera/                # Camera hardware integration modules
 │   │   ├── __init__.py
@@ -120,7 +130,8 @@ VLM-Enhanced-Robotic-Assistant/
 │   ├── vlm/                   # Vision-Language Model modules
 │   │   ├── __init__.py
 │   │   ├── vlm_interface.py
-│   │   └── gemini_vlm.py
+│   │   ├── gemini_vlm.py
+│   │   └── local_qwen_vlm.py
 │   └── tts/                   # Text-to-Speech modules
 │       ├── __init__.py
 │       └── tts_module.py
@@ -133,7 +144,7 @@ VLM-Enhanced-Robotic-Assistant/
 
 1.  **RealSense Camera Not Detected**:
     -   **Error**: `RuntimeError: No device connected` or similar.
-    -   **Resolution**: Ensure the RealSense camera is securely connected to a compatible USB 3.0+ port. Verify that the `pyrealsense2` library was installed correctly.
+    -   **Resolution**: Ensure the RealSense camera is securely connected to a compatible USB 3.0+ port. Verify that the `pyrealsense2` library was installed correctly. The application can now fall back to a placeholder image if no camera is found.
 2.  **FFmpeg Installation Error**:
     -   **Error**: `[WinError 2] The system cannot find the file specified`.
     -   **Resolution**: Ensure FFmpeg is installed and its location is in your system's PATH environment variable.
@@ -143,6 +154,7 @@ VLM-Enhanced-Robotic-Assistant/
 ### Short-term Objectives (1-3 months)
 
 #### Real-time Interaction Enhancement
+- **Task Decomposition**: **Completed**.
 - **Live Camera Integration**: **Completed**.
 - **Dynamic Scene Analysis**: **In Progress**.
 - **Wake Word Detection**: Implement voice activation for hands-free operation.

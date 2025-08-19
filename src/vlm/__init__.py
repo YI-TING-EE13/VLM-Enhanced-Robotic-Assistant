@@ -17,11 +17,12 @@ To add a new VLM service:
    an instance of your new class.
 """
 
+from typing import Any
 from .vlm_interface import VLMInterface
 from .gemini_vlm import GeminiAPI_VLM
 from .local_qwen_vlm import LocalQwenVL
 
-def get_vlm_service(service_name: str = "gemini", **kwargs) -> VLMInterface:
+def get_vlm_service(service_name: str = "gemini", **kwargs: Any) -> VLMInterface:
     """
     Factory function to create and return an instance of a VLM service.
 
