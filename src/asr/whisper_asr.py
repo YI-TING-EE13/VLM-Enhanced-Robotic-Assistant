@@ -19,7 +19,7 @@ class WhisperASR(ASRInterface):
         accessible in the environment's PATH for audio processing.
     """
 
-    def __init__(self, model_name: str = "base"):
+    def __init__(self, model_name: str = "base") -> None:
         """
         Loads a specified Whisper model into memory.
 

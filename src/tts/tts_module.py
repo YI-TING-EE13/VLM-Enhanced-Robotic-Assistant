@@ -9,7 +9,7 @@ import tempfile
 # 'zh-TW-HsiaoChenNeural' is a high-quality female voice for Traditional Chinese (Taiwan).
 DEFAULT_VOICE = "zh-TW-HsiaoChenNeural"
 
-async def _generate_and_play(text: str, voice: str):
+async def _generate_and_play(text: str, voice: str) -> None:
     """
     An asynchronous helper function that generates speech and plays it.
 
@@ -21,7 +21,7 @@ async def _generate_and_play(text: str, voice: str):
         text (str): The text to be synthesized into speech.
         voice (str): The voice to use for the synthesis.
     """
-    output_file = None
+    output_file: Optional[str] = None
     try:
         # Create a temporary file to store the MP3 output.
         # Using tempfile is safer and cleaner than hardcoding a filename.
@@ -51,7 +51,7 @@ async def _generate_and_play(text: str, voice: str):
             os.remove(output_file)
             # print(f"TTS: Temporary audio file '{os.path.basename(output_file)}' removed.")
 
-def speak(text: str, voice: str = DEFAULT_VOICE):
+def speak(text: str, voice: str = DEFAULT_VOICE) -> None:
     """
     Converts text to speech and plays it aloud using Microsoft Edge's TTS service.
 

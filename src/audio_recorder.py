@@ -21,7 +21,7 @@ import numpy as np
 import wave
 import tempfile
 import os
-from typing import Optional
+from typing import Optional, List, Any
 
 class AudioRecorder:
     """
@@ -31,7 +31,7 @@ class AudioRecorder:
     save it as a WAV file, and manage the recording process with user feedback.
     """
     
-    def __init__(self, sample_rate: int = 16000, channels: int = 1):
+    def __init__(self, sample_rate: int = 16000, channels: int = 1) -> None:
         """
         Initialize the audio recorder.
         
@@ -42,7 +42,7 @@ class AudioRecorder:
         self.sample_rate = sample_rate
         self.channels = channels
         self.recording = False
-        self.audio_data = []
+        self.audio_data: List[np.ndarray] = []
     
     def record_audio(self, duration: float = 5.0, countdown: bool = True) -> str:
         """
@@ -65,7 +65,7 @@ class AudioRecorder:
         print(f"🔴 開始錄音 ({duration} 秒)...")
         
         # Record audio
-        audio_data = sd.rec(
+        audio_data: np.ndarray = sd.rec(
             int(duration * self.sample_rate),
             samplerate=self.sample_rate,
             channels=self.channels,
@@ -102,9 +102,9 @@ class AudioRecorder:
         print("按 Enter 停止錄音...")
         
         # Start recording in a separate thread
-        audio_data = []
+        audio_data: List[np.ndarray] = []
         
-        def audio_callback(indata, frames, time, status):
+        def audio_callback(indata: np.ndarray, frames: int, time: Any, status: Any) -> None:
             if status:
                 print(f"錄音狀態: {status}")
             audio_data.append(indata.copy())
@@ -124,7 +124,7 @@ class AudioRecorder:
             raise RuntimeError("沒有錄製到音頻數據")
         
         # Concatenate all audio chunks
-        full_audio = np.concatenate(audio_data, axis=0)
+        full_audio: np.ndarray = np.concatenate(audio_data, axis=0)
         
         # Create temporary file
         temp_file = tempfile.NamedTemporaryFile(suffix='.wav', delete=False)
@@ -136,7 +136,7 @@ class AudioRecorder:
         
         return temp_path
     
-    def _save_wav(self, audio_data: np.ndarray, file_path: str):
+    def _save_wav(self, audio_data: np.ndarray, file_path: str) -> None:
         """
         Save audio data as a WAV file.
         
@@ -153,7 +153,7 @@ class AudioRecorder:
             wav_file.setframerate(self.sample_rate)
             wav_file.writeframes(audio_int16.tobytes())
     
-    def cleanup_temp_file(self, file_path: str):
+    def cleanup_temp_file(self, file_path: str) -> None:
         """
         Clean up temporary audio file.
         
@@ -168,7 +168,7 @@ class AudioRecorder:
             print(f"⚠️ 清理檔案時發生錯誤: {e}")
     
     @staticmethod
-    def list_audio_devices():
+    def list_audio_devices() -> None:
         """
         List available audio devices for debugging purposes.
         """
